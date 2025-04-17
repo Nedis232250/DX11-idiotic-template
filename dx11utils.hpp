@@ -24,7 +24,7 @@ class Shader {
 			level = features;
 		}
 
-		HRESULT create_D3D11_buffer(ID3D11Buffer** buf, unsigned int size, unsigned char item_size, unsigned int type, unsigned int flags, unsigned int CPU_flags, D3D11_USAGE usage) {
+		HRESULT create_D3D11_buffer(ID3D11Buffer** buf, const void* dat_in, unsigned int size, unsigned char item_size, unsigned int type, unsigned int flags, unsigned int CPU_flags, D3D11_USAGE usage) {
 			D3D11_BUFFER_DESC buffer_description = { };
 			buffer_description.ByteWidth = size;
 			buffer_description.StructureByteStride = item_size;
@@ -33,7 +33,12 @@ class Shader {
 			buffer_description.MiscFlags = flags;
 			buffer_description.Usage = usage;
 
-			return device->CreateBuffer(&buffer_description, nullptr, buf);
+			D3D11_SUBRESOURCE_DATA data_in = { };
+			if (dat_in) {
+				data_in.pSysMem = dat_in;
+			}
+
+			return device->CreateBuffer(&buffer_description, dat_in ? &data_in : nullptr, buf);
 		}
 
 		HRESULT compile_shader(LPCWSTR file_name, LPCSTR entrypoint) {
